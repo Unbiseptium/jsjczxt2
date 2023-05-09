@@ -550,12 +550,9 @@ void set_algorithm() {
     int algorithm;
     cout << "\t1 - 首次适应算法\n";
     cout << "\t2 - 最佳适应算法\n";
-    cout << "\t3 -最差适应算法\n";
+    cout << "\t3 - 最差适应算法\n";
     cin >> algorithm;
     if (algorithm >= 1 && algorithm <= 3)
-        ma_algorithm = algorithm;
-
-    //按指定算法重新排列空闲区链表
-    rearrange(ma_algorithm);
+        rearrange(algorithm);//按指定算法重新排列空闲区链表
 }
 
