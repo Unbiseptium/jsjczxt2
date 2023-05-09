@@ -36,7 +36,7 @@ int mem_size = DEFAULT_MEM_SIZE; //内存大小
 int ma_algorithm = MA_FF; //当前分配算法
 static int pid = 0; //初始pid
 int flag = 0; //设置内存大小标志
-int min_mem_size = 10; //设置剩余分区过小的标志
+int min_mem_size = 0; //设置剩余分区过小的标志
 
 FBT *init_free_block(int mem_size);
 
