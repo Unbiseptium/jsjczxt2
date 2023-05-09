@@ -1,43 +1,42 @@
-#define PROCESS_NAME_LEN 32 /*进程名长度*/
-#define MIN_SLICE 10        /*最小碎片的大小*/
-#define DEFAULT_MEM_SIZE 64    /*内存大小*/
-#define DEFAULT_MEM_START 0        /*起始位置*/
+#include<bits/stdc++.h>
+
+using namespace std;
+
+#define DEFAULT_MEM_SIZE 64    //内存大小
+#define DEFAULT_MEM_START 0        //起始位置
 
 /*内存分配算法*/
 #define MA_FF 1
 #define MA_BF 2
 #define MA_WF 3
 
-#include<bits/stdc++.h>
-
-using namespace std;
-/*描述每一个空闲块的数据结构*/
+//描述每一个空闲块的数据结构
 typedef struct free_block_type {
     int size;
     int start_addr;
     struct free_block_type *next;
 } FBT;
 
-/*每个进程分配到的内存块描述*/
+//每个进程分配到的内存块描述
 typedef struct allocated_block {
     int pid;
     int size;
     int start_addr;
-    char process_name[PROCESS_NAME_LEN];
+    string process_name;
     struct allocated_block *next;
 } AB;
 
-/*指向内存中空闲块链表的首指针*/
+//指向内存中空闲块链表的首指针
 FBT *free_block;
 
-/*进程分配内存块链表的首指针*/
-AB *allocated_block_head = NULL;
+//进程分配内存块链表的首指针
+AB *allocated_block_head = nullptr;
 
-int mem_size = DEFAULT_MEM_SIZE; /*内存大小*/
-int ma_algorithm = MA_FF; /*当前分配算法*/
-static int pid = 0; /*初始pid*/
-int flag = 0; /*设置内存大小标志*/
-int min_mem_size = 10; /*设置剩余分区过小的标志*/
+int mem_size = DEFAULT_MEM_SIZE; //内存大小
+int ma_algorithm = MA_FF; //当前分配算法
+static int pid = 0; //初始pid
+int flag = 0; //设置内存大小标志
+int min_mem_size = 10; //设置剩余分区过小的标志
 
 FBT *init_free_block(int mem_size);
 
@@ -72,17 +71,13 @@ void do_exit() {
 }
 
 int main() {
-    /* code */
+    //code
     char choice;
     pid = 0;
     free_block = init_free_block(mem_size); //初始化空闲区
-    while (true) {
-        fflush(stdin);
+    cout << "此程序中规定设置内存大小为64MB" << endl;
         display_menu(); //显示菜单
-        fflush(stdin);
-        while (cin >> choice) {
-            //choice = getchar()) != '\n'
-            fflush(stdin);
+        while ((cin >> choice)) {
             switch (choice) {
                 case '1':
                     set_algorithm();
@@ -106,19 +101,18 @@ int main() {
                 default:
                     break;
             }
-            fflush(stdin);
+             display_menu();
         }
-    }
+   // }
 }
 
 void display_menu() {
     puts("");
-    printf("此程序中规定设置内存大小为64MB\n");
-    printf("1 - 选择内存分配算法\n");
-    printf("2 - 新进程\n");
-    printf("3 - 终止进程 \n");
-    printf("4 - 显示内存使用情况\n");
-    printf("0 - 退出系统\n");
+    cout << "1 - 选择内存分配算法" << endl;
+    cout << "2 - 新进程" << endl;
+    cout << "3 - 终止进程 " << endl;
+    cout << "4 - 显示内存使用情况" << endl;
+    cout << "0 - 退出系统" << endl;
 }
 
 //初始化空闲分区链表
@@ -126,13 +120,13 @@ FBT *init_free_block(int mem_size) {
     FBT *fb;
 
     fb = (FBT *) malloc(sizeof(FBT));
-    if (fb == NULL) {
-        printf("No mem\n");
-        return NULL;
+    if (fb == nullptr) {
+        cout << "No mem" << endl;
+        return nullptr;
     }
     fb->size = mem_size;
     fb->start_addr = DEFAULT_MEM_START;
-    fb->next = NULL;
+    fb->next = nullptr;
     return fb;
 }
 
@@ -140,11 +134,11 @@ FBT *init_free_block(int mem_size) {
 int set_mem_size() {
     int size;
     if (flag != 0) {
-        printf("无法再次设定内存大小！\n");
+        cout << "无法再次设定内存大小!" << endl;
         return 0;
     }
-    printf("内存总大小 =");
-    scanf("%d", &size);
+    cout << "内存总大小 =" << endl;
+    cin >> size;
     if (size > 0) {
         mem_size = size;
         free_block->size = mem_size;
@@ -159,21 +153,20 @@ int display_mem_usage() {
     FBT *fbt = free_block;
     AB *ab = allocated_block_head;
     //显示空闲区
-    printf("------------------------------------------------------------------\n");
-    printf("空闲区域:\n");
-    printf("起始地址       内存大小 \n");
-    while (fbt != NULL) {
-        printf("%d                %d\n", fbt->start_addr, fbt->size);
+    cout << "------------------------------------------------------------------" << endl;
+    cout << "空闲区域:" << endl;
+    cout << "起始地址       内存大小 " << endl;
+    while (fbt != nullptr) {
+        cout << fbt->start_addr << "                " << fbt->size << endl;
         fbt = fbt->next;
     }
 
     //显示已分配区
-    printf("------------------------------------------------------------------");
-    printf("\n");
-    printf("Used Memory:\n");
-    printf("进程号      起始地址  占用内存大小  \n");
-    while (ab != NULL) {
-        printf("%d           %d         %d\n", ab->pid, ab->start_addr, ab->size);
+    cout << "------------------------------------------------------------------" << endl;
+    cout << "Used Memory:" << endl;
+    cout << "进程号      起始地址  占用内存大小  \n";
+    while (ab != nullptr) {
+        cout << ab->pid << "           " << ab->start_addr << "         " << ab->size << endl;
         ab = ab->next;
     }
     return 0;
@@ -202,16 +195,16 @@ int dispose(AB *free_ab) {
 
 //释放进程所占用的内存
 int free_mem(AB *ab) {
-    /* 将ab所表示的已分配区归还，并进行可能的合并 */
+    //将ab所表示的已分配区归还，并进行可能的合并
     int algorithm = ma_algorithm;
     FBT *fbt, *pre, *work;
     fbt = (FBT *) malloc(sizeof(FBT));
     if (!fbt) return -1;
     /*
-    进行可能的合并，基本策略如下?
-    1. 将新释放的结点插入到空闲分区队列末尾?
-    2. 对空闲链表按照地址有序排列?
-    3. 检查并合并相邻的空闲分区?
+    进行可能的合并，基本策略如下
+    1. 将新释放的结点插入到空闲分区队列末尾
+    2. 对空闲链表按照地址有序排列
+    3. 检查并合并相邻的空闲分区
     4. 将空闲链表重新按照当前算法排序
     */
     fbt->size = ab->size;
@@ -219,11 +212,11 @@ int free_mem(AB *ab) {
 
     //插至末尾
     work = free_block;
-    if (work == NULL) {
+    if (work == nullptr) {
         free_block = fbt;
-        fbt->next == NULL;
+        fbt->next = nullptr;
     } else {
-        while (work->next != NULL) {
+        while (work->next != nullptr) {
             work = work->next;
         }
         fbt->next = work->next;
@@ -254,23 +247,23 @@ int free_mem(AB *ab) {
 //找到pid对应的链表节点
 AB *find_process(int pid) {
     AB *tmp = allocated_block_head;
-    while (tmp != NULL) {
+    while (tmp != nullptr) {
         if (tmp->pid == pid) {
             return tmp;
         }
         tmp = tmp->next;
     }
-    printf("\e[0;31;1m Cannot find pid:%d \e[0m\n", pid);
-    return NULL;
+    cout << "Cannot find pid:" << pid << endl;
+    return nullptr;
 }
 
 int kill_process() {
     AB *ab;
     int pid;
-    printf("Kill Process,pid=");
-    scanf("%d", &pid);
+    cout << "Kill Process,pid=";
+    cin >> pid;
     ab = find_process(pid);
-    if (ab != NULL) {
+    if (ab != nullptr) {
         free_mem(ab);    //释放ab所表示的分配表
         dispose(ab);    //释放ab数据结构节点
         return 0;
@@ -304,7 +297,7 @@ int find_free_mem(int request) {
 
 //将已分配表按起始地址从大到小排序
 void sort_AB() {
-    if (allocated_block_head == NULL || allocated_block_head->next == NULL)
+    if (allocated_block_head == nullptr || allocated_block_head->next == nullptr)
         return;
     AB *t1, *t2, *head;
     head = allocated_block_head;
@@ -325,9 +318,9 @@ void sort_AB() {
 
 //重新给所有进程分配内存地址
 void reset_AB(int start) {
-    /*在真实操作系统中这个操作非常不容易，故内存紧缩并不能频繁使用*/
+    //在真实操作系统中这个操作非常不容易，故内存紧缩并不能频繁使用
     AB *tmp = allocated_block_head;
-    while (tmp != NULL) {
+    while (tmp != nullptr) {
         tmp->start_addr = start;
         start += tmp->size;
         tmp = tmp->next;
@@ -340,7 +333,7 @@ void memory_compact() {
     AB *abtmp = allocated_block_head;
     //检测剩余内存
     int sum = 0;
-    while (fbttmp != NULL) {
+    while (fbttmp != nullptr) {
         sum += fbttmp->size;
         fbttmp = fbttmp->next;
     }
@@ -349,11 +342,11 @@ void memory_compact() {
     fbttmp = free_block;
     fbttmp->size = sum;
     fbttmp->start_addr = 0;
-    fbttmp->next = NULL;
+    fbttmp->next = nullptr;
 
     //释放多余分区
     FBT *pr = free_block->next;
-    while (pr != NULL) {
+    while (pr != nullptr) {
         fbttmp = pr->next;
         free(pr);
         pr = fbttmp;
@@ -368,7 +361,7 @@ void memory_compact() {
 void do_allocate_mem(AB *ab) {
     int request = ab->size;
     FBT *tmp = free_block;
-    while (tmp != NULL) {
+    while (tmp != nullptr) {
         if (tmp->size >= request) {
             //分配
             ab->start_addr = tmp->start_addr;
@@ -399,26 +392,25 @@ void do_allocate_mem(AB *ab) {
 }
 
 int allocate_mem(AB *ab) {
-    /*分配内存模块*/
+    //分配内存模块
     FBT *fbt, *pre;
     int request_size = ab->size;
     fbt = pre = free_block;
-    /*
-    根据当前算法在空闲分区链表中搜索合适空闲分区进行分配，
-        分配时注意以下情况：
-    1. 找到可满足空闲分区且分配后剩余空间足够大，则分割
-    2. 找到可满足空闲分区且但分配后剩余空间比较小，则一起分配
-    3. 找不可满足需要的空闲分区但空闲分区之和能满足需要，
-        则采用内存紧缩技术，进行空闲分区的合并，然后再分配
-    4. 在成功分配内存后，应保持空闲分区按照相应算法有序
-    5. 分配成功则返回1，否则返回-1
-    */
+
+//    根据当前算法在空闲分区链表中搜索合适空闲分区进行分配，分配时注意以下情况：
+//    1. 找到可满足空闲分区且分配后剩余空间足够大，则分割
+//    2. 找到可满足空闲分区且但分配后剩余空间比较小，则一起分配
+//    3. 找不可满足需要的空闲分区但空闲分区之和能满足需要，
+//        则采用内存紧缩技术，进行空闲分区的合并，然后再分配
+//    4. 在成功分配内存后，应保持空闲分区按照相应算法有序
+//    5. 分配成功则返回1，否则返回-1
+
 
     //尝试寻找可分配空闲，具体结果在函数中有解释
     int f = find_free_mem(request_size);
     if (f == -1) {
         //不够分配
-        printf("Free mem is not enough,Allocate fail!\n");
+        cout << "Free mem is not enough,Allocate fail!" << endl;
         return -1;
     } else {
         if (f == 0) {
@@ -441,28 +433,31 @@ int new_process() {
     int size;
     int ret;
     ab = (AB *) malloc(sizeof(AB));
-    if (!ab) exit(-5);
-
-    ab->next = NULL;
+    if (!ab)
+        exit(-5);
+    ab->next = nullptr;
     pid++;
-    printf(ab->process_name, "PROCESS-%20d", pid);
     ab->pid = pid;
-    printf("Memory for %s:", ab->process_name);
-    scanf("%d", &size);
-    if (size > 0) ab->size = size;
+    string spid = "PROCESS:" + to_string(pid);
+    cout << "Memory for " << spid << endl;
+    cin >> size;
+    if (size > 0)
+        ab->size = size;
     ret = allocate_mem(ab);        //从空闲分区分配内存，ret==1表示分配成功
-    if ((ret == 1) && (allocated_block_head == NULL)) {
-        /*如果此时allocated_block_head尚未赋值，则赋值*/
+    if ((ret == 1) && (allocated_block_head == nullptr)) {
+        //如果此时allocated_block_head尚未赋值，则赋值
         allocated_block_head = ab;
+        cout << "分配成功" << endl;
         return 1;
     } else if (ret == 1) {
-        /*分配成功，将该分配块的描述插入已分配链表*/
+        //分配成功，将该分配块的描述插入已分配链表
         ab->next = allocated_block_head;
         allocated_block_head = ab;
+        cout << "分配成功" << endl;
         return 2;
     } else if (ret == -1) {
         //分配不成功
-        printf("配不成功\n");
+        cout << "分配不成功" << endl;
         free(ab);
         return -1;
     }
@@ -470,9 +465,9 @@ int new_process() {
 }
 
 void rearrange_FF() {
-    /*首次适应算法，空闲区大小按起始地址升序排序*/
+    //首次适应算法，空闲区大小按起始地址升序排序
     //这里使用冒泡排序方法
-    if (free_block == NULL || free_block->next == NULL)
+    if (free_block == nullptr || free_block->next == nullptr)
         return;
     FBT *t1, *t2, *head;
     head = free_block;
@@ -492,8 +487,8 @@ void rearrange_FF() {
 }
 
 void rearrange_BF() {
-    /*最佳适应算法，空闲分区按大小从小到大排序*/
-    if (free_block == NULL || free_block->next == NULL)
+    //最佳适应算法，空闲分区按大小从小到大排序
+    if (free_block == nullptr || free_block->next == nullptr)
         return;
     FBT *t1, *t2, *head;
     head = free_block;
@@ -513,8 +508,8 @@ void rearrange_BF() {
 }
 
 void rearrange_WF() {
-    /*最坏适应算法，空闲分区按从大到小排序*/
-    if (free_block == NULL || free_block->next == NULL)
+    //最坏适应算法，空闲分区按从大到小排序
+    if (free_block == nullptr || free_block->next == nullptr)
         return;
     FBT *t1, *t2, *head;
     head = free_block;
@@ -533,7 +528,7 @@ void rearrange_WF() {
     }
 }
 
-/*按指定的算法整理内存空闲块链表*/
+//按指定的算法整理内存空闲块链表
 void rearrange(int algorithm) {
     switch (algorithm) {
         case MA_FF:
@@ -545,15 +540,18 @@ void rearrange(int algorithm) {
         case MA_WF:
             rearrange_WF();
             break;
+        default:
+            break;
     }
 }
+
 void set_algorithm() {
-    /*设置当前分配算法*/
+    //设置当前分配算法
     int algorithm;
-    printf("\t1 - 首次适应算法\n");
-    printf("\t2 - 最佳适应算法\n");
-    printf("\t3 -最差适应算法\n");
-    scanf("%d", &algorithm);
+    cout << "\t1 - 首次适应算法\n";
+    cout << "\t2 - 最佳适应算法\n";
+    cout << "\t3 -最差适应算法\n";
+    cin >> algorithm;
     if (algorithm >= 1 && algorithm <= 3)
         ma_algorithm = algorithm;
 
