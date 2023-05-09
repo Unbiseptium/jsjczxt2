@@ -33,12 +33,12 @@ FBT *free_block;
 AB *allocated_block_head = nullptr;
 
 int mem_size = DEFAULT_MEM_SIZE; //内存大小
-int ma_algorithm = MA_FF; //当前分配算法
+int now_algorithm = MA_FF; //当前分配算法
 static int pid = 0; //初始pid
 int flag = 0; //设置内存大小标志
 int min_mem_size = 0; //设置剩余分区过小的标志
 
-FBT *init_free_block(int mem_size);
+FBT *init_free_block(int mem_sizee);
 
 void display_menu();
 
@@ -76,34 +76,34 @@ int main() {
     pid = 0;
     free_block = init_free_block(mem_size); //初始化空闲区
     cout << "此程序中规定设置内存大小为64MB" << endl;
-        display_menu(); //显示菜单
-        while ((cin >> choice)) {
-            switch (choice) {
-                case '1':
-                    set_algorithm();
-                    flag = 1;
-                    break;
-                case '2':
-                    new_process();
-                    flag = 1;
-                    break;
-                case '3':
-                    kill_process();
-                    flag = 1;
-                    break;
-                case '4':
-                    display_mem_usage();
-                    flag = 1;
-                    break;
-                case '0':
-                    do_exit();
-                    exit(0);
-                default:
-                    break;
-            }
-             display_menu();
+    display_menu(); //显示菜单
+    while ((cin >> choice)) {
+        switch (choice) {
+            case '1':
+                set_algorithm();
+                flag = 1;
+                break;
+            case '2':
+                new_process();
+                flag = 1;
+                break;
+            case '3':
+                kill_process();
+                flag = 1;
+                break;
+            case '4':
+                display_mem_usage();
+                flag = 1;
+                break;
+            case '0':
+                do_exit();
+                exit(0);
+            default:
+                break;
         }
-   // }
+        display_menu();
+    }
+    // }
 }
 
 void display_menu() {
@@ -116,7 +116,7 @@ void display_menu() {
 }
 
 //初始化空闲分区链表
-FBT *init_free_block(int mem_size) {
+FBT *init_free_block(int mem_sizee) {
     FBT *fb;
 
     fb = (FBT *) malloc(sizeof(FBT));
@@ -124,7 +124,7 @@ FBT *init_free_block(int mem_size) {
         cout << "No mem" << endl;
         return nullptr;
     }
-    fb->size = mem_size;
+    fb->size = mem_sizee;
     fb->start_addr = DEFAULT_MEM_START;
     fb->next = nullptr;
     return fb;
@@ -196,7 +196,7 @@ int dispose(AB *free_ab) {
 //释放进程所占用的内存
 int free_mem(AB *ab) {
     //将ab所表示的已分配区归还，并进行可能的合并
-    int algorithm = ma_algorithm;
+    int algorithm = now_algorithm;
     FBT *fbt, *pre, *work;
     fbt = (FBT *) malloc(sizeof(FBT));
     if (!fbt) return -1;
@@ -240,32 +240,33 @@ int free_mem(AB *ab) {
     }
 
     //按照当前算法排序
-    rearrange(ma_algorithm);
+    rearrange(now_algorithm);
     return 1;
 }
 
 //找到pid对应的链表节点
-AB *find_process(int pid) {
+AB *find_process(int pidd) {
     AB *tmp = allocated_block_head;
     while (tmp != nullptr) {
-        if (tmp->pid == pid) {
+        if (tmp->pid == pidd) {
             return tmp;
         }
         tmp = tmp->next;
     }
-    cout << "Cannot find pid:" << pid << endl;
+    cout << "Cannot find pid:" << pidd << endl;
     return nullptr;
 }
 
 int kill_process() {
     AB *ab;
-    int pid;
+    int pidd;
     cout << "Kill Process,pid=";
-    cin >> pid;
-    ab = find_process(pid);
+    cin >> pidd;
+    ab = find_process(pidd);
     if (ab != nullptr) {
         free_mem(ab);    //释放ab所表示的分配表
-        dispose(ab);    //释放ab数据结构节点
+        dispose(ab);//释放ab数据结构节点
+        cout << "Success!" << endl;
         return 0;
     } else {
         return -1;
@@ -421,7 +422,7 @@ int allocate_mem(AB *ab) {
         do_allocate_mem(ab);
     }
     //重新排布空闲分区
-    rearrange(ma_algorithm);
+    rearrange(now_algorithm);
     return 1;
 }
 
@@ -447,17 +448,17 @@ int new_process() {
     if ((ret == 1) && (allocated_block_head == nullptr)) {
         //如果此时allocated_block_head尚未赋值，则赋值
         allocated_block_head = ab;
-        cout << "分配成功" << endl;
+        cout << "Success!" << endl;
         return 1;
     } else if (ret == 1) {
         //分配成功，将该分配块的描述插入已分配链表
         ab->next = allocated_block_head;
         allocated_block_head = ab;
-        cout << "分配成功" << endl;
+        cout << "Success!" << endl;
         return 2;
     } else if (ret == -1) {
         //分配不成功
-        cout << "分配不成功" << endl;
+        cout << "Unsuccess!" << endl;
         free(ab);
         return -1;
     }
@@ -553,6 +554,9 @@ void set_algorithm() {
     cout << "\t3 - 最差适应算法\n";
     cin >> algorithm;
     if (algorithm >= 1 && algorithm <= 3)
-        rearrange(algorithm);//按指定算法重新排列空闲区链表
+        now_algorithm = algorithm;
+
+    //按指定算法重新排列空闲区链表
+    rearrange(algorithm);
 }
 
